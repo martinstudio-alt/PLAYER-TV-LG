@@ -12,22 +12,15 @@
 
   <title>PLAYER TV</title>
 
-
   <style>
-
-    /* =====================================================
-       PANTALLA COMPLETA
-       ===================================================== */
 
     html,
     body {
 
       margin: 0;
-
       padding: 0;
 
       width: 100%;
-
       height: 100%;
 
       background: #000;
@@ -36,21 +29,14 @@
 
     }
 
-
-    /* =====================================================
-       VIDEO
-       ===================================================== */
-
     #player {
 
       position: fixed;
 
       top: 0;
-
       left: 0;
 
       width: 100vw;
-
       height: 100vh;
 
       background: #000;
@@ -60,7 +46,6 @@
       display: block;
 
     }
-
 
   </style>
 
@@ -80,29 +65,49 @@
 
 <script>
 
-
 /* =========================================================
    CONFIGURACIÓN
    ========================================================= */
 
+/*
+   IDENTIFICADOR DE ESTA TV
+*/
 
 const TV_ID =
   "TV-01";
 
 
+/*
+   GOOGLE APPS SCRIPT
+   CENTRAL DE ÓRDENES
+*/
+
 const COMMAND_URL =
   "https://script.google.com/macros/s/AKfycby1pMrCtWRBlGjY6XCO5SbSqAynFUARkKcEjVwXYsBbbC3jeInHMnEZe9tAQBUHUII1kw/exec";
 
 
-const BASE =
-  "videos/";
+/*
+   CLOUDFLARE R2
+   SERVIDOR DE VIDEOS
+*/
 
+const VIDEO_BASE =
+  "https://pub-1efa5f9724f545f287360b07a22fa891.r2.dev/";
+
+
+/*
+   REPRODUCTOR
+*/
 
 const player =
   document.getElementById(
     "player"
   );
 
+
+/*
+   ÚLTIMA ORDEN RECIBIDA
+*/
 
 let ultimoComando =
   "";
@@ -112,52 +117,42 @@ let ultimoComando =
    REPRODUCIR VIDEO
    ========================================================= */
 
-function reproducir(video, id) {
-
-
-  /*
-   ---------------------------------------------------------
-   Agregamos el ID de la orden como parámetro.
-
-   Esto evita que el TV utilice una versión antigua
-   del video guardada en caché.
-   ---------------------------------------------------------
-  */
+function reproducir(
+  video,
+  id
+) {
 
   const src =
-    BASE +
+    VIDEO_BASE +
     video +
     "?v=" +
-    encodeURIComponent(id);
+    encodeURIComponent(
+      id
+    );
 
 
-  /*
-   ---------------------------------------------------------
-   Cambiar fuente
-   ---------------------------------------------------------
-  */
+  console.log(
+    "Reproduciendo:",
+    src
+  );
+
 
   player.src =
     src;
 
 
-  /*
-   ---------------------------------------------------------
-   Reiniciar video
-   ---------------------------------------------------------
-  */
-
   player.load();
 
 
-  /*
-   ---------------------------------------------------------
-   Reproducir automáticamente
-   ---------------------------------------------------------
-  */
-
   player.play().catch(
-    function() {}
+    function(error) {
+
+      console.log(
+        "Play pendiente:",
+        error
+      );
+
+    }
   );
 
 }
@@ -169,9 +164,7 @@ function reproducir(video, id) {
 
 async function consultar() {
 
-
   try {
-
 
     const url =
       COMMAND_URL
@@ -187,7 +180,8 @@ async function consultar() {
       await fetch(
         url,
         {
-          cache: "no-store"
+          cache:
+            "no-store"
         }
       );
 
@@ -202,18 +196,12 @@ async function consultar() {
     );
 
 
-    /*
-     -------------------------------------------------------
-     Si existe una orden nueva
-     -------------------------------------------------------
-    */
-
     if (
       data.ok &&
       data.video &&
-      data.id !== ultimoComando
+      data.id !==
+        ultimoComando
     ) {
-
 
       ultimoComando =
         data.id;
@@ -226,17 +214,9 @@ async function consultar() {
 
     }
 
+  }
 
-  } catch (error) {
-
-
-    /*
-     -------------------------------------------------------
-     No mostramos ningún error en pantalla.
-
-     El TV queda visualmente limpio.
-     -------------------------------------------------------
-    */
+  catch (error) {
 
     console.log(
       "Sin conexión con central:",
@@ -256,17 +236,9 @@ player.addEventListener(
   "ended",
   function() {
 
+    player.currentTime =
+      0;
 
-    /*
-     Volver al comienzo
-    */
-
-    player.currentTime = 0;
-
-
-    /*
-     Reproducir nuevamente
-    */
 
     player.play().catch(
       function() {}
@@ -280,13 +252,8 @@ player.addEventListener(
    INICIO
    ========================================================= */
 
-
-/*
-   Video inicial
-*/
-
 player.src =
-  BASE +
+  VIDEO_BASE +
   "video01.mp4";
 
 
@@ -306,14 +273,14 @@ consultar();
 
 
 /*
-   Consultar central cada 3 segundos
+   Consultar central
+   cada 3 segundos
 */
 
 setInterval(
   consultar,
   3000
 );
-
 
 </script>
 
