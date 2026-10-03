@@ -1,67 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Player TV Instituto</title>
+    <title>PLAYER TV</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
 
-    #player {
-      width: 100vw;
-      height: 100vh;
-      object-fit: contain;
-      background: #000;
-    }
-
-    #boton {
-      position: fixed;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      padding: 25px 50px;
-      font-size: 30px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      z-index: 10;
-    }
-  </style>
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
 
-  <video id="player" playsinline loop>
-    <source src="videos/video01.mp4" type="video/mp4">
-  </video>
+    <video
+        controls
+        preload="auto"
+        playsinline>
 
-  <button id="boton">▶ REPRODUCIR</button>
+        <source
+            src="videos/video-prueba-contador.mp4"
+            type="video/mp4">
 
-  <script>
-    const player = document.getElementById("player");
-    const boton = document.getElementById("boton");
-
-    boton.addEventListener("click", function () {
-
-      player.play()
-        .then(function () {
-          boton.style.display = "none";
-        })
-        .catch(function (error) {
-          alert("Error al reproducir: " + error);
-        });
-
-    });
-  </script>
+    </video>
 
 </body>
 </html>
