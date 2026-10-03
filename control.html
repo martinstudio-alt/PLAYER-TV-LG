@@ -12,13 +12,11 @@
 
   <title>Control TV</title>
 
-
   <style>
 
     * {
       box-sizing: border-box;
     }
-
 
     body {
 
@@ -37,7 +35,6 @@
 
     }
 
-
     .contenedor {
 
       width: 100%;
@@ -47,7 +44,6 @@
       margin: 0 auto;
 
     }
-
 
     h1 {
 
@@ -63,7 +59,6 @@
 
     }
 
-
     .subtitulo {
 
       text-align: center;
@@ -74,7 +69,6 @@
 
     }
 
-
     .tv {
 
       background: #1e1e1e;
@@ -84,7 +78,6 @@
       padding: 20px;
 
     }
-
 
     .tv-header {
 
@@ -99,7 +92,6 @@
 
     }
 
-
     .tv-nombre {
 
       font-size: 22px;
@@ -107,7 +99,6 @@
       font-weight: bold;
 
     }
-
 
     .estado {
 
@@ -117,21 +108,22 @@
 
     }
 
-
     .botones {
 
       display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
 
       gap: 14px;
 
     }
 
-
     button {
 
       width: 100%;
 
-      min-height: 70px;
+      min-height: 100px;
 
       border: none;
 
@@ -139,7 +131,7 @@
 
       color: white;
 
-      font-size: 19px;
+      font-size: 18px;
 
       font-weight: bold;
 
@@ -147,13 +139,12 @@
 
     }
 
-
     button:active {
 
-      transform: scale(0.98);
+      transform:
+        scale(0.97);
 
     }
-
 
     .video1 {
 
@@ -161,13 +152,23 @@
 
     }
 
-
     .video2 {
 
       background: #7b3fb5;
 
     }
 
+    .video3 {
+
+      background: #16805c;
+
+    }
+
+    .video4 {
+
+      background: #c06b16;
+
+    }
 
     .resultado {
 
@@ -190,7 +191,6 @@
       align-items: center;
 
     }
-
 
     .info {
 
@@ -240,7 +240,6 @@
         📺 TV-01
       </div>
 
-
       <div
         id="estado"
         class="estado"
@@ -271,6 +270,26 @@
         "
       >
         ▶ VIDEO 02
+      </button>
+
+
+      <button
+        class="video3"
+        onclick="
+          enviarVideo('video03.mp4')
+        "
+      >
+        ▶ VIDEO 03
+      </button>
+
+
+      <button
+        class="video4"
+        onclick="
+          enviarVideo('video04.mp4')
+        "
+      >
+        ▶ VIDEO 04
       </button>
 
 
@@ -309,7 +328,6 @@
 </div>
 
 
-
 <script>
 
 
@@ -342,6 +360,7 @@ const estado =
    ENVIAR VIDEO
    ======================================================== */
 
+
 function enviarVideo(video) {
 
 
@@ -357,12 +376,6 @@ function enviarVideo(video) {
     "respuesta_" +
     Date.now();
 
-
-  /*
-   --------------------------------------------------------
-   Crear callback
-   --------------------------------------------------------
-  */
 
   window[callback] =
     function(data) {
@@ -406,12 +419,6 @@ function enviarVideo(video) {
     };
 
 
-  /*
-   --------------------------------------------------------
-   Crear URL
-   --------------------------------------------------------
-  */
-
   const url =
     COMMAND_URL
     + "?tv="
@@ -435,12 +442,6 @@ function enviarVideo(video) {
     url
   );
 
-
-  /*
-   --------------------------------------------------------
-   Crear SCRIPT
-   --------------------------------------------------------
-  */
 
   const script =
     document.createElement(
@@ -478,12 +479,6 @@ function enviarVideo(video) {
       script
     );
 
-
-  /*
-   --------------------------------------------------------
-   Timeout
-   --------------------------------------------------------
-  */
 
   setTimeout(
     function() {
