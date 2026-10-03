@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Player TV Instituto</title>
+
   <style>
     html, body {
       margin: 0;
@@ -14,34 +16,52 @@
       overflow: hidden;
     }
 
-    video {
+    #player {
       width: 100vw;
       height: 100vh;
       object-fit: contain;
-      display: block;
       background: #000;
+    }
+
+    #boton {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 25px 50px;
+      font-size: 30px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      z-index: 10;
     }
   </style>
 </head>
+
 <body>
-  <video id="player"
-         autoplay
-         muted
-         loop
-         playsinline
-         preload="auto">
+
+  <video id="player" playsinline loop>
     <source src="videos/video01.mp4" type="video/mp4">
-    Tu navegador no puede reproducir este video.
   </video>
+
+  <button id="boton">▶ REPRODUCIR</button>
 
   <script>
     const player = document.getElementById("player");
+    const boton = document.getElementById("boton");
 
-    // Intento inicial de reproducción.
-    player.play().catch(() => {
-      // Algunos televisores exigen una interacción inicial.
-      // El video está muted para permitir autoplay cuando sea posible.
+    boton.addEventListener("click", function () {
+
+      player.play()
+        .then(function () {
+          boton.style.display = "none";
+        })
+        .catch(function (error) {
+          alert("Error al reproducir: " + error);
+        });
+
     });
   </script>
+
 </body>
 </html>
