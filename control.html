@@ -1,1 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Control TV</title>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+
+      margin: 0;
+
+      padding: 20px;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #111;
+
+      color: white;
+
+    }
+
+
+    .contenedor {
+
+      max-width: 500px;
+
+      margin: auto;
+
+    }
+
+
+    h1 {
+
+      text-align: center;
+
+      margin-top: 10px;
+
+      margin-bottom: 8px;
+
+      font-size: 28px;
+
+    }
+
+
+    .subtitulo {
+
+      text-align: center;
+
+      color: #aaa;
+
+      margin-bottom: 25px;
+
+    }
+
+
+    .tv {
+
+      background: #1d1d1d;
+
+      border-radius: 18px;
+
+      padding: 20px;
+
+      margin-bottom: 20px;
+
+      box-shadow:
+        0 8px 25px rgba(0,0,0,0.35);
+
+    }
+
+
+    .tv-header {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      margin-bottom: 20px;
+
+    }
+
+
+    .tv-nombre {
+
+      font-size: 22px;
+
+      font-weight: bold;
+
+    }
+
+
+    .estado {
+
+      font-size: 13px;
+
+      color: #7CFC00;
+
+    }
+
+
+    .botones {
+
+      display: grid;
+
+      grid-template-columns: 1fr;
+
+      gap: 12px;
+
+    }
+
+
+    button {
+
+      width: 100%;
+
+      min-height: 65px;
+
+      border: none;
+
+      border-radius: 14px;
+
+      font-size: 18px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+
+      color: white;
+
+      background: #333;
+
+    }
+
+
+    button:active {
+
+      transform: scale(0.98);
+
+    }
+
+
+    .video1 {
+
+      background: #1769aa;
+
+    }
+
+
+    .video2 {
+
+      background: #7b3fb5;
+
+    }
+
+
+    .detener {
+
+      background: #9b2c2c;
+
+    }
+
+
+    .resultado {
+
+      margin-top: 20px;
+
+      padding: 15px;
+
+      background: #222;
+
+      border-radius: 12px;
+
+      text-align: center;
+
+      color: #ccc;
+
+      min-height: 50px;
+
+    }
+
+
+    .info {
+
+      margin-top: 25px;
+
+      padding: 15px;
+
+      background: #181818;
+
+      border-radius: 12px;
+
+      font-size: 13px;
+
+      color: #888;
+
+      line-height: 1.5;
+
+    }
+
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+<div class="contenedor">
+
+
+  <h1>CONTROL DE PANTALLAS</h1>
+
+  <div class="subtitulo">
+    Sistema de reproducción centralizada
+  </div>
+
+
+  <div class="tv">
+
+
+    <div class="tv-header">
+
+      <div class="tv-nombre">
+        📺 TV-01
+      </div>
+
+      <div
+        id="estado"
+        class="estado"
+      >
+        ● DISPONIBLE
+      </div>
+
+    </div>
+
+
+    <div class="botones">
+
+
+      <button
+        class="video1"
+        onclick="enviarVideo('video01.mp4')"
+      >
+        ▶ VIDEO 01
+      </button>
+
+
+      <button
+        class="video2"
+        onclick="enviarVideo('video02.mp4')"
+      >
+        ▶ VIDEO 02
+      </button>
+
+
+      <button
+        class="detener"
+        onclick="enviarVideo('video01.mp4')"
+      >
+        ■ DETENER
+      </button>
+
+
+    </div>
+
+
+    <div
+      id="resultado"
+      class="resultado"
+    >
+      Esperando una orden...
+    </div>
+
+
+  </div>
+
+
+  <div class="info">
+
+    <strong>TV:</strong> TV-01<br>
+
+    <strong>Servidor:</strong> Google Apps Script<br>
+
+    <strong>Comunicación:</strong> cada 3 segundos
+
+  </div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   CONFIGURACIÓN
+   ========================================================= */
+
+
+const TV_ID = "TV-01";
+
+
+const COMMAND_URL =
+"https://script.google.com/macros/s/AKfycbxoKmNXXIYyFf0uQX4gll0G2ROFtGBA9HHlQn21NBAyWbcHG4UpVexK5DeDRjF3hs0nQ/exec";
+
+
+
+/* =========================================================
+   ENVIAR VIDEO
+   ========================================================= */
+
+
+function enviarVideo(video) {
+
+
+  const resultado =
+    document.getElementById("resultado");
+
+
+  const estado =
+    document.getElementById("estado");
+
+
+  resultado.innerHTML =
+    "Enviando orden...";
+
+
+  estado.innerHTML =
+    "● ENVIANDO";
+
+
+  const url =
+    COMMAND_URL
+    + "?tv="
+    + encodeURIComponent(TV_ID)
+    + "&video="
+    + encodeURIComponent(video)
+    + "&t="
+    + Date.now();
+
+
+  /*
+   --------------------------------------------------------
+   IMPORTANTE
+
+   Utilizamos una imagen invisible para enviar
+   la solicitud al servidor.
+
+   Esto evita problemas de CORS entre GitHub Pages
+   y Google Apps Script.
+   --------------------------------------------------------
+  */
+
+
+  const img =
+    new Image();
+
+
+  img.onload = function() {
+
+    resultado.innerHTML =
+      "✓ Orden enviada: " + video;
+
+    estado.innerHTML =
+      "● ORDEN ENVIADA";
+
+  };
+
+
+  img.onerror = function() {
+
+    /*
+     Aunque el navegador pueda informar error
+     al cargar la respuesta JSON, la solicitud
+     igualmente puede haber llegado al servidor.
+    */
+
+    resultado.innerHTML =
+      "✓ Orden enviada: " + video;
+
+    estado.innerHTML =
+      "● ORDEN ENVIADA";
+
+  };
+
+
+  img.src = url;
+
+
+}
+
+
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+
+
+console.log(
+  "Control iniciado para " + TV_ID
+);
+
+
+</script>
+
+
+</body>
+
+</html>
