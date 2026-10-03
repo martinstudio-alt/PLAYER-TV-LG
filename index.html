@@ -15,6 +15,10 @@
 
   <style>
 
+    /* =====================================================
+       PANTALLA COMPLETA
+       ===================================================== */
+
     html,
     body {
 
@@ -26,49 +30,37 @@
 
       height: 100%;
 
-      background: black;
+      background: #000;
 
       overflow: hidden;
 
-      font-family: Arial, sans-serif;
-
     }
 
+
+    /* =====================================================
+       VIDEO
+       ===================================================== */
 
     #player {
 
-      width: 100%;
+      position: fixed;
 
-      height: 100%;
+      top: 0;
+
+      left: 0;
+
+      width: 100vw;
+
+      height: 100vh;
+
+      background: #000;
 
       object-fit: contain;
 
-      background: black;
+      display: block;
 
     }
 
-
-    #estado {
-
-      position: fixed;
-
-      left: 10px;
-
-      bottom: 10px;
-
-      color: white;
-
-      background: rgba(0,0,0,0.65);
-
-      padding: 8px 12px;
-
-      border-radius: 6px;
-
-      font-size: 14px;
-
-      z-index: 10;
-
-    }
 
   </style>
 
@@ -84,11 +76,6 @@
   muted
   playsinline
 ></video>
-
-
-<div id="estado">
-  Iniciando...
-</div>
 
 
 <script>
@@ -117,67 +104,61 @@ const player =
   );
 
 
-const estado =
-  document.getElementById(
-    "estado"
-  );
-
-
 let ultimoComando =
   "";
 
 
 /* =========================================================
-   REPRODUCIR
+   REPRODUCIR VIDEO
    ========================================================= */
 
-function reproducir(video) {
-
-  const src =
-    BASE + video;
+function reproducir(video, id) {
 
 
   /*
-   Solo cambiar si realmente
-   cambió el archivo.
+   ---------------------------------------------------------
+   Agregamos el ID de la orden como parámetro.
+
+   Esto evita que el TV utilice una versión antigua
+   del video guardada en caché.
+   ---------------------------------------------------------
   */
 
-  if (
-    player.getAttribute("src")
-    !== src
-  ) {
-
-    player.src =
-      src;
-
-    player.load();
-
-  }
+  const src =
+    BASE +
+    video +
+    "?v=" +
+    encodeURIComponent(id);
 
 
-  player.play()
+  /*
+   ---------------------------------------------------------
+   Cambiar fuente
+   ---------------------------------------------------------
+  */
 
-    .then(function() {
+  player.src =
+    src;
 
-      estado.textContent =
-        TV_ID +
-        " · " +
-        video;
 
-    })
+  /*
+   ---------------------------------------------------------
+   Reiniciar video
+   ---------------------------------------------------------
+  */
 
-    .catch(function(error) {
+  player.load();
 
-      estado.textContent =
-        TV_ID +
-        " · error reproducción";
 
-      console.log(
-        "Error reproducción:",
-        error
-      );
+  /*
+   ---------------------------------------------------------
+   Reproducir automáticamente
+   ---------------------------------------------------------
+  */
 
-    });
+  player.play().catch(
+    function() {}
+  );
 
 }
 
@@ -187,11 +168,6 @@ function reproducir(video) {
    ========================================================= */
 
 async function consultar() {
-
-
-  estado.textContent =
-    TV_ID +
-    " · consultando central";
 
 
   try {
@@ -226,38 +202,27 @@ async function consultar() {
     );
 
 
+    /*
+     -------------------------------------------------------
+     Si existe una orden nueva
+     -------------------------------------------------------
+    */
+
     if (
       data.ok &&
-      data.video
+      data.video &&
+      data.id !== ultimoComando
     ) {
 
 
-      /*
-       Solo cambiar si la orden
-       es nueva.
-      */
-
-      if (
-        data.id !==
-        ultimoComando
-      ) {
-
-        ultimoComando =
-          data.id;
+      ultimoComando =
+        data.id;
 
 
-        reproducir(
-          data.video
-        );
-
-      } else {
-
-        estado.textContent =
-          TV_ID +
-          " · " +
-          data.video;
-
-      }
+      reproducir(
+        data.video,
+        data.id
+      );
 
     }
 
@@ -265,19 +230,50 @@ async function consultar() {
   } catch (error) {
 
 
+    /*
+     -------------------------------------------------------
+     No mostramos ningún error en pantalla.
+
+     El TV queda visualmente limpio.
+     -------------------------------------------------------
+    */
+
     console.log(
-      "Error central:",
+      "Sin conexión con central:",
       error
     );
-
-
-    estado.textContent =
-      TV_ID +
-      " · sin conexión";
 
   }
 
 }
+
+
+/* =========================================================
+   LOOP DEL VIDEO
+   ========================================================= */
+
+player.addEventListener(
+  "ended",
+  function() {
+
+
+    /*
+     Volver al comienzo
+    */
+
+    player.currentTime = 0;
+
+
+    /*
+     Reproducir nuevamente
+    */
+
+    player.play().catch(
+      function() {}
+    );
+
+  }
+);
 
 
 /* =========================================================
@@ -289,8 +285,16 @@ async function consultar() {
    Video inicial
 */
 
-reproducir(
-  "video01.mp4"
+player.src =
+  BASE +
+  "video01.mp4";
+
+
+player.load();
+
+
+player.play().catch(
+  function() {}
 );
 
 
@@ -302,30 +306,12 @@ consultar();
 
 
 /*
-   Consultar cada 3 segundos
+   Consultar central cada 3 segundos
 */
 
 setInterval(
   consultar,
   3000
-);
-
-
-/* =========================================================
-   LOOP DEL VIDEO
-   ========================================================= */
-
-player.addEventListener(
-  "ended",
-  function() {
-
-    player.currentTime = 0;
-
-    player.play().catch(
-      function() {}
-    );
-
-  }
 );
 
 
