@@ -2,264 +2,335 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>PLAYER TV 03</title>
+  <meta charset="UTF-8">
 
-    <style>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            overflow: hidden;
-        }
+  <title>PLAYER TV</title>
 
-        video {
-            width: 100vw;
-            height: 100vh;
-            object-fit: contain;
-            display: block;
-            background: #000;
-        }
 
-        #estado {
-            position: fixed;
-            left: 12px;
-            bottom: 8px;
-            color: #777;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            z-index: 10;
-        }
+  <style>
 
-    </style>
+    html,
+    body {
+
+      margin: 0;
+
+      padding: 0;
+
+      width: 100%;
+
+      height: 100%;
+
+      background: black;
+
+      overflow: hidden;
+
+      font-family: Arial, sans-serif;
+
+    }
+
+
+    #player {
+
+      width: 100%;
+
+      height: 100%;
+
+      object-fit: contain;
+
+      background: black;
+
+    }
+
+
+    #estado {
+
+      position: fixed;
+
+      left: 10px;
+
+      bottom: 10px;
+
+      color: white;
+
+      background: rgba(0,0,0,0.65);
+
+      padding: 8px 12px;
+
+      border-radius: 6px;
+
+      font-size: 14px;
+
+      z-index: 10;
+
+    }
+
+  </style>
 
 </head>
 
+
 <body>
 
-    <video
-        id="player"
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="auto">
-    </video>
 
-    <div id="estado">
-        TV-01 · iniciando...
-    </div>
+<video
+  id="player"
+  autoplay
+  muted
+  playsinline
+></video>
 
 
-    <script>
-
-        // =====================================================
-        // CONFIGURACIÓN DE LA TV
-        // =====================================================
-
-        const TV_ID = "TV-01";
-
-        const COMMAND_URL =
-            "https://script.google.com/macros/s/AKfycbxoKmNXXIYyFf0uQXo4gll0G2ROFtGBA9HHlQn21NBAyWbcHG4UpVexK5DeDRjF3hs0nQ/exec";
-
-        const BASE = "videos/";
+<div id="estado">
+  Iniciando...
+</div>
 
 
-        // =====================================================
-        // ELEMENTOS DE LA PÁGINA
-        // =====================================================
-
-        const player = document.getElementById("player");
-
-        const estado = document.getElementById("estado");
+<script>
 
 
-        // =====================================================
-        // CONTROL INTERNO
-        // =====================================================
-
-        let ultimoComando = "";
+/* =========================================================
+   CONFIGURACIÓN
+   ========================================================= */
 
 
-
-        // =====================================================
-        // FUNCIÓN PARA REPRODUCIR VIDEO
-        // =====================================================
-
-        function reproducir(video) {
-
-            const src = BASE + video;
-
-            estado.textContent =
-                TV_ID + " · cargando " + video;
+const TV_ID =
+  "TV-01";
 
 
-            // Si el video es diferente al actual,
-            // cambiamos la fuente.
-
-            if (player.getAttribute("src") !== src) {
-
-                player.src = src;
-
-                player.load();
-
-            }
+const COMMAND_URL =
+  "https://script.google.com/macros/s/AKfycby1pMrCtWRBlGjY6XCO5SbSqAynFUARkKcEjVwXYsBbbC3jeInHMnEZe9tAQBUHUII1kw/exec";
 
 
-            // Intentamos reproducir.
+const BASE =
+  "videos/";
 
-            player.play()
 
-                .then(function () {
+const player =
+  document.getElementById(
+    "player"
+  );
 
-                    estado.textContent =
-                        TV_ID + " · reproduciendo " + video;
 
-                })
+const estado =
+  document.getElementById(
+    "estado"
+  );
 
-                .catch(function (error) {
 
-                    estado.textContent =
-                        "ERROR VIDEO: " + error.name;
+let ultimoComando =
+  "";
 
-                    console.error(
-                        "Error de reproducción:",
-                        error
-                    );
 
-                });
+/* =========================================================
+   REPRODUCIR
+   ========================================================= */
 
+function reproducir(video) {
+
+  const src =
+    BASE + video;
+
+
+  /*
+   Solo cambiar si realmente
+   cambió el archivo.
+  */
+
+  if (
+    player.getAttribute("src")
+    !== src
+  ) {
+
+    player.src =
+      src;
+
+    player.load();
+
+  }
+
+
+  player.play()
+
+    .then(function() {
+
+      estado.textContent =
+        TV_ID +
+        " · " +
+        video;
+
+    })
+
+    .catch(function(error) {
+
+      estado.textContent =
+        TV_ID +
+        " · error reproducción";
+
+      console.log(
+        "Error reproducción:",
+        error
+      );
+
+    });
+
+}
+
+
+/* =========================================================
+   CONSULTAR CENTRAL
+   ========================================================= */
+
+async function consultar() {
+
+
+  estado.textContent =
+    TV_ID +
+    " · consultando central";
+
+
+  try {
+
+
+    const url =
+      COMMAND_URL
+      + "?tv="
+      + encodeURIComponent(
+          TV_ID
+        )
+      + "&t="
+      + Date.now();
+
+
+    const respuesta =
+      await fetch(
+        url,
+        {
+          cache: "no-store"
         }
+      );
 
 
-
-        // =====================================================
-        // CONSULTAR CENTRAL
-        // =====================================================
-
-        async function consultar() {
-
-            estado.textContent =
-                TV_ID + " · consultando central...";
+    const data =
+      await respuesta.json();
 
 
-            try {
-
-                const respuesta =
-                    await fetch(
-                        COMMAND_URL +
-                        "?tv=" +
-                        encodeURIComponent(TV_ID) +
-                        "&t=" +
-                        Date.now()
-                    );
+    console.log(
+      "Central:",
+      data
+    );
 
 
-                if (!respuesta.ok) {
-
-                    throw new Error(
-                        "HTTP " + respuesta.status
-                    );
-
-                }
+    if (
+      data.ok &&
+      data.video
+    ) {
 
 
-                const data =
-                    await respuesta.json();
+      /*
+       Solo cambiar si la orden
+       es nueva.
+      */
 
+      if (
+        data.id !==
+        ultimoComando
+      ) {
 
-                console.log(
-                    "Respuesta central:",
-                    data
-                );
+        ultimoComando =
+          data.id;
 
-
-                if (
-                    data.ok &&
-                    data.video
-                ) {
-
-                    // Si es una orden nueva
-                    // la ejecutamos.
-
-                    if (
-                        data.id !==
-                        ultimoComando
-                    ) {
-
-                        ultimoComando =
-                            data.id;
-
-                        reproducir(
-                            data.video
-                        );
-
-                    }
-
-                }
-
-                else {
-
-                    estado.textContent =
-                        TV_ID +
-                        " · central sin orden";
-
-                }
-
-            }
-
-
-            catch (error) {
-
-                estado.textContent =
-                    TV_ID +
-                    " · ERROR CENTRAL";
-
-                console.error(
-                    "Error consultando central:",
-                    error
-                );
-
-            }
-
-        }
-
-
-
-        // =====================================================
-        // ARRANQUE INICIAL
-        // =====================================================
-
-        // Primero reproducimos directamente
-        // VIDEO 01.
 
         reproducir(
-            "video01.mp4"
+          data.video
         );
 
+      } else {
 
-        // =====================================================
-        // CONSULTAR CENTRAL CADA 3 SEGUNDOS
-        // =====================================================
+        estado.textContent =
+          TV_ID +
+          " · " +
+          data.video;
 
-        setInterval(
-            consultar,
-            3000
-        );
+      }
 
-
-        // Primera consulta inmediata.
-
-        consultar();
+    }
 
 
-    </script>
+  } catch (error) {
+
+
+    console.log(
+      "Error central:",
+      error
+    );
+
+
+    estado.textContent =
+      TV_ID +
+      " · sin conexión";
+
+  }
+
+}
+
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+
+
+/*
+   Video inicial
+*/
+
+reproducir(
+  "video01.mp4"
+);
+
+
+/*
+   Primera consulta
+*/
+
+consultar();
+
+
+/*
+   Consultar cada 3 segundos
+*/
+
+setInterval(
+  consultar,
+  3000
+);
+
+
+/* =========================================================
+   LOOP DEL VIDEO
+   ========================================================= */
+
+player.addEventListener(
+  "ended",
+  function() {
+
+    player.currentTime = 0;
+
+    player.play().catch(
+      function() {}
+    );
+
+  }
+);
+
+
+</script>
+
 
 </body>
 
