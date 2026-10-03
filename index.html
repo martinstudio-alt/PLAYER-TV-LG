@@ -1,43 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>PLAYER TV</title>
-
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            overflow: hidden;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLAYER TV 02</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+  </style>
 </head>
-
 <body>
+  <video id="player"
+         autoplay
+         muted
+         loop
+         playsinline
+         preload="auto">
+    <source src="videos/video-prueba-contador.mp4" type="video/mp4">
+  </video>
 
-    <video
-        controls
-        preload="auto"
-        playsinline>
+  <script>
+    const player = document.getElementById("player");
 
-        <source
-            src="videos/video-prueba-contador.mp4"
-            type="video/mp4">
-
-    </video>
-
+    // Intento explícito de autoplay. Al estar muted,
+    // los navegadores suelen permitirlo.
+    player.play().catch(() => {
+      // No mostramos controles: esta prueba busca comprobar
+      // si webOS permite autoplay silencioso.
+    });
+  </script>
 </body>
 </html>
