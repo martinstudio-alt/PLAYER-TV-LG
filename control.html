@@ -19,7 +19,6 @@
       box-sizing: border-box;
     }
 
-
     body {
 
       margin: 0;
@@ -40,9 +39,11 @@
 
     .contenedor {
 
+      width: 100%;
+
       max-width: 500px;
 
-      margin: auto;
+      margin: 0 auto;
 
     }
 
@@ -51,11 +52,9 @@
 
       text-align: center;
 
-      margin-top: 10px;
-
-      margin-bottom: 8px;
-
       font-size: 28px;
+
+      margin: 10px 0 5px 0;
 
     }
 
@@ -64,7 +63,7 @@
 
       text-align: center;
 
-      color: #aaa;
+      color: #999;
 
       margin-bottom: 25px;
 
@@ -73,16 +72,11 @@
 
     .tv {
 
-      background: #1d1d1d;
+      background: #1e1e1e;
 
       border-radius: 18px;
 
       padding: 20px;
-
-      margin-bottom: 20px;
-
-      box-shadow:
-        0 8px 25px rgba(0,0,0,0.35);
 
     }
 
@@ -113,7 +107,7 @@
 
       font-size: 13px;
 
-      color: #7CFC00;
+      color: #00d26a;
 
     }
 
@@ -122,9 +116,7 @@
 
       display: grid;
 
-      grid-template-columns: 1fr;
-
-      gap: 12px;
+      gap: 14px;
 
     }
 
@@ -133,21 +125,19 @@
 
       width: 100%;
 
-      min-height: 65px;
+      min-height: 70px;
 
       border: none;
 
       border-radius: 14px;
 
-      font-size: 18px;
+      color: white;
+
+      font-size: 19px;
 
       font-weight: bold;
 
       cursor: pointer;
-
-      color: white;
-
-      background: #333;
 
     }
 
@@ -175,7 +165,7 @@
 
     .detener {
 
-      background: #9b2c2c;
+      background: #8d2929;
 
     }
 
@@ -184,39 +174,62 @@
 
       margin-top: 20px;
 
-      padding: 15px;
-
-      background: #222;
+      padding: 16px;
 
       border-radius: 12px;
 
+      background: #292929;
+
       text-align: center;
 
-      color: #ccc;
+      min-height: 52px;
 
-      min-height: 50px;
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
 
     }
 
 
     .info {
 
-      margin-top: 25px;
+      margin-top: 20px;
 
       padding: 15px;
 
-      background: #181818;
-
       border-radius: 12px;
 
-      font-size: 13px;
+      background: #181818;
 
       color: #888;
 
-      line-height: 1.5;
+      font-size: 13px;
+
+      line-height: 1.6;
 
     }
 
+
+    /*
+    IFRAME OCULTO
+
+    Se utiliza para enviar la orden a Google Apps Script
+    sin abandonar esta pantalla.
+    */
+
+    #comunicacion {
+
+      display: none;
+
+      width: 1px;
+
+      height: 1px;
+
+      border: 0;
+
+    }
 
   </style>
 
@@ -229,7 +242,10 @@
 <div class="contenedor">
 
 
-  <h1>CONTROL DE PANTALLAS</h1>
+  <h1>
+    CONTROL DE PANTALLAS
+  </h1>
+
 
   <div class="subtitulo">
     Sistema de reproducción centralizada
@@ -245,11 +261,12 @@
         📺 TV-01
       </div>
 
+
       <div
         id="estado"
         class="estado"
       >
-        ● DISPONIBLE
+        ● LISTA
       </div>
 
     </div>
@@ -289,7 +306,7 @@
       id="resultado"
       class="resultado"
     >
-      Esperando una orden...
+      Selecciona un video
     </div>
 
 
@@ -302,7 +319,7 @@
 
     <strong>Servidor:</strong> Google Apps Script<br>
 
-    <strong>Comunicación:</strong> cada 3 segundos
+    <strong>Consulta TV:</strong> cada 3 segundos
 
   </div>
 
@@ -310,13 +327,25 @@
 </div>
 
 
+<!--
+=========================================================
+IFRAME OCULTO
+=========================================================
+-->
+
+<iframe
+  id="comunicacion"
+  name="comunicacion"
+></iframe>
+
+
 
 <script>
 
 
-/* =========================================================
+/* ======================================================
    CONFIGURACIÓN
-   ========================================================= */
+   ====================================================== */
 
 
 const TV_ID = "TV-01";
@@ -326,10 +355,9 @@ const COMMAND_URL =
 "https://script.google.com/macros/s/AKfycbxoKmNXXIYyFf0uQX4gll0G2ROFtGBA9HHlQn21NBAyWbcHG4UpVexK5DeDRjF3hs0nQ/exec";
 
 
-
-/* =========================================================
-   ENVIAR VIDEO
-   ========================================================= */
+/* ======================================================
+   ENVIAR ORDEN
+   ====================================================== */
 
 
 function enviarVideo(video) {
@@ -343,13 +371,21 @@ function enviarVideo(video) {
     document.getElementById("estado");
 
 
+  /*
+  Mostrar estado
+  */
+
   resultado.innerHTML =
-    "Enviando orden...";
+    "Enviando: " + video;
 
 
   estado.innerHTML =
     "● ENVIANDO";
 
+
+  /*
+  Crear URL completa
+  */
 
   const url =
     COMMAND_URL
@@ -362,65 +398,36 @@ function enviarVideo(video) {
 
 
   /*
-   --------------------------------------------------------
-   IMPORTANTE
-
-   Utilizamos una imagen invisible para enviar
-   la solicitud al servidor.
-
-   Esto evita problemas de CORS entre GitHub Pages
-   y Google Apps Script.
-   --------------------------------------------------------
+  Enviar mediante iframe oculto
   */
 
+  const iframe =
+    document.getElementById("comunicacion");
 
-  const img =
-    new Image();
+
+  iframe.src = url;
 
 
-  img.onload = function() {
+  /*
+  Dar unos milisegundos para que
+  Google Apps Script reciba la orden.
+  */
+
+  setTimeout(function() {
+
 
     resultado.innerHTML =
       "✓ Orden enviada: " + video;
 
-    estado.innerHTML =
-      "● ORDEN ENVIADA";
-
-  };
-
-
-  img.onerror = function() {
-
-    /*
-     Aunque el navegador pueda informar error
-     al cargar la respuesta JSON, la solicitud
-     igualmente puede haber llegado al servidor.
-    */
-
-    resultado.innerHTML =
-      "✓ Orden enviada: " + video;
 
     estado.innerHTML =
       "● ORDEN ENVIADA";
 
-  };
 
-
-  img.src = url;
+  }, 800);
 
 
 }
-
-
-
-/* =========================================================
-   INICIO
-   ========================================================= */
-
-
-console.log(
-  "Control iniciado para " + TV_ID
-);
 
 
 </script>
