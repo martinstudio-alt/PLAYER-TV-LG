@@ -1,46 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PLAYER TV 02</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-    }
-    video {
-      width: 100vw;
-      height: 100vh;
-      object-fit: contain;
-      display: block;
-      background: #000;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAYER TV 03</title>
+<style>
+html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden}
+video{width:100vw;height:100vh;object-fit:contain;display:block;background:#000}
+#estado{position:fixed;left:12px;bottom:8px;color:#777;font:12px Arial;z-index:5}
+</style>
 </head>
 <body>
-  <video id="player"
-         autoplay
-         muted
-         loop
-         playsinline
-         preload="auto">
-    <source src="videos/video-prueba-contador.mp4" type="video/mp4">
-  </video>
+<video id="player" autoplay muted loop playsinline preload="auto"></video>
+<div id="estado">TV-01 · conectando...</div>
 
-  <script>
-    const player = document.getElementById("player");
+<script>
+const TV_ID = "TV-01";
+const COMMAND_URL = "COLOCA_AQUI_LA_URL_DE_TU_WEB_APP_DE_APPS_SCRIPT";
+const BASE = "videos/";
+const player = document.getElementById("player");
+const estado = document.getElementById("estado");
 
-    // Intento explícito de autoplay. Al estar muted,
-    // los navegadores suelen permitirlo.
-    player.play().catch(() => {
-      // No mostramos controles: esta prueba busca comprobar
-      // si webOS permite autoplay silencioso.
-    });
-  </script>
+let ultimoComando = "";
+
+function reproducir(video) {
+  const src = BASE + video;
+  if (player.getAttribute("src") !== src) {
+    player.src = src;
+    player.load();
+  }
+  player.play().catch(()=>{});
+  estado.textContent = TV_ID + " · " + video;
+}
+
+async function consultar() {
+  if (!COMMAND_URL.startsWith("http")) return;
+  try {
+    const r = await fetch(COMMAND_URL + "?tv=" + encodeURIComponent(TV_ID) + "&t=" + Date.now());
+    const data = await r.json();
+
+    if (data.ok && data.video && data.id !== ultimoComando) {
+      ultimoComando = data.id;
+      reproducir(data.video);
+    }
+  } catch(e) {
+    estado.textContent = TV_ID + " · sin conexión";
+  }
+}
+
+// Video inicial
+reproducir("video01.mp4");
+
+// Consulta periódica
+setInterval(consultar, 3000);
+consultar();
+</script>
 </body>
 </html>
