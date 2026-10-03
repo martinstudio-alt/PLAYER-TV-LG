@@ -19,6 +19,7 @@
       box-sizing: border-box;
     }
 
+
     body {
 
       margin: 0;
@@ -54,7 +55,11 @@
 
       font-size: 28px;
 
-      margin: 10px 0 5px 0;
+      margin:
+        10px
+        0
+        5px
+        0;
 
     }
 
@@ -85,7 +90,8 @@
 
       display: flex;
 
-      justify-content: space-between;
+      justify-content:
+        space-between;
 
       align-items: center;
 
@@ -144,7 +150,8 @@
 
     button:active {
 
-      transform: scale(0.98);
+      transform:
+        scale(0.98);
 
     }
 
@@ -163,13 +170,6 @@
     }
 
 
-    .detener {
-
-      background: #8d2929;
-
-    }
-
-
     .resultado {
 
       margin-top: 20px;
@@ -182,7 +182,7 @@
 
       text-align: center;
 
-      min-height: 52px;
+      min-height: 55px;
 
       display: flex;
 
@@ -208,26 +208,6 @@
       font-size: 13px;
 
       line-height: 1.6;
-
-    }
-
-
-    /*
-    IFRAME OCULTO
-
-    Se utiliza para enviar la orden a Google Apps Script
-    sin abandonar esta pantalla.
-    */
-
-    #comunicacion {
-
-      display: none;
-
-      width: 1px;
-
-      height: 1px;
-
-      border: 0;
 
     }
 
@@ -277,7 +257,9 @@
 
       <button
         class="video1"
-        onclick="enviarVideo('video01.mp4')"
+        onclick="
+          enviarVideo('video01.mp4')
+        "
       >
         ▶ VIDEO 01
       </button>
@@ -285,17 +267,11 @@
 
       <button
         class="video2"
-        onclick="enviarVideo('video02.mp4')"
+        onclick="
+          enviarVideo('video02.mp4')
+        "
       >
         ▶ VIDEO 02
-      </button>
-
-
-      <button
-        class="detener"
-        onclick="enviarVideo('video01.mp4')"
-      >
-        ■ DETENER
       </button>
 
 
@@ -315,11 +291,18 @@
 
   <div class="info">
 
-    <strong>TV:</strong> TV-01<br>
+    <strong>TV:</strong>
+    TV-01
 
-    <strong>Servidor:</strong> Google Apps Script<br>
+    <br>
 
-    <strong>Consulta TV:</strong> cada 3 segundos
+    <strong>Servidor:</strong>
+    Google Apps Script
+
+    <br>
+
+    <strong>Comunicación:</strong>
+    Central
 
   </div>
 
@@ -327,56 +310,50 @@
 </div>
 
 
-<!--
-=========================================================
-IFRAME OCULTO
-=========================================================
--->
-
-<iframe
-  id="comunicacion"
-  name="comunicacion"
-></iframe>
-
-
 
 <script>
 
 
-/* ======================================================
+/* ========================================================
    CONFIGURACIÓN
-   ====================================================== */
+   ======================================================== */
 
 
-const TV_ID = "TV-01";
+const TV_ID =
+  "TV-01";
 
 
 const COMMAND_URL =
-"https://script.google.com/macros/s/AKfycbxoKmNXXIYyFf0uQX4gll0G2ROFtGBA9HHlQn21NBAyWbcHG4UpVexK5DeDRjF3hs0nQ/exec";
+  "https://script.google.com/macros/s/AKfycbxoKmNXXIYyFf0uQX4gll0G2ROFtGBA9HHlQn21NBAyWbcHG4UpVexK5DeDRjF3hs0nQ/exec";
 
 
-/* ======================================================
-   ENVIAR ORDEN
-   ====================================================== */
+/* ========================================================
+   ELEMENTOS
+   ======================================================== */
+
+
+const resultado =
+  document.getElementById(
+    "resultado"
+  );
+
+
+const estado =
+  document.getElementById(
+    "estado"
+  );
+
+
+/* ========================================================
+   ENVIAR VIDEO
+   ======================================================== */
 
 
 function enviarVideo(video) {
 
 
-  const resultado =
-    document.getElementById("resultado");
-
-
-  const estado =
-    document.getElementById("estado");
-
-
-  /*
-  Mostrar estado
-  */
-
   resultado.innerHTML =
-    "Enviando: " + video;
+    "Enviando orden...";
 
 
   estado.innerHTML =
@@ -384,48 +361,196 @@ function enviarVideo(video) {
 
 
   /*
-  Crear URL completa
+   --------------------------------------------------------
+   Nombre único para el callback
+   --------------------------------------------------------
+  */
+
+  const callback =
+    "respuesta_" +
+    Date.now();
+
+
+  /*
+   --------------------------------------------------------
+   Crear función callback
+   --------------------------------------------------------
+  */
+
+  window[callback] =
+    function(data) {
+
+
+      console.log(
+        "Respuesta central:",
+        data
+      );
+
+
+      /*
+       ----------------------------------------------------
+       La central confirmó la orden
+       ----------------------------------------------------
+      */
+
+      if (
+        data &&
+        data.ok === true
+      ) {
+
+
+        resultado.innerHTML =
+          "✓ CENTRAL RECIBIÓ LA ORDEN";
+
+
+        estado.innerHTML =
+          "● CONECTADA";
+
+
+      } else {
+
+
+        resultado.innerHTML =
+          "✕ Error en la central";
+
+
+        estado.innerHTML =
+          "● ERROR";
+
+      }
+
+
+      /*
+       ----------------------------------------------------
+       Eliminar callback
+       ----------------------------------------------------
+      */
+
+      delete window[callback];
+
+    };
+
+
+  /*
+   --------------------------------------------------------
+   Construir URL
+   --------------------------------------------------------
   */
 
   const url =
     COMMAND_URL
     + "?tv="
-    + encodeURIComponent(TV_ID)
+    + encodeURIComponent(
+        TV_ID
+      )
     + "&video="
-    + encodeURIComponent(video)
+    + encodeURIComponent(
+        video
+      )
+    + "&callback="
+    + encodeURIComponent(
+        callback
+      )
     + "&t="
     + Date.now();
 
 
-  /*
-  Enviar mediante iframe oculto
-  */
-
-  const iframe =
-    document.getElementById("comunicacion");
-
-
-  iframe.src = url;
+  console.log(
+    "Enviando:",
+    url
+  );
 
 
   /*
-  Dar unos milisegundos para que
-  Google Apps Script reciba la orden.
+   --------------------------------------------------------
+   Crear SCRIPT dinámico
+   --------------------------------------------------------
   */
 
-  setTimeout(function() {
+  const script =
+    document.createElement(
+      "script"
+    );
 
 
-    resultado.innerHTML =
-      "✓ Orden enviada: " + video;
+  script.src =
+    url;
 
 
-    estado.innerHTML =
-      "● ORDEN ENVIADA";
+  /*
+   --------------------------------------------------------
+   Error de comunicación
+   --------------------------------------------------------
+  */
+
+  script.onerror =
+    function() {
 
 
-  }, 800);
+      resultado.innerHTML =
+        "✕ No se pudo contactar la central";
 
+
+      estado.innerHTML =
+        "● SIN CONEXIÓN";
+
+
+      delete window[callback];
+
+
+      script.remove();
+
+    };
+
+
+  /*
+   --------------------------------------------------------
+   Agregar SCRIPT a la página
+   --------------------------------------------------------
+  */
+
+  document
+    .body
+    .appendChild(
+      script
+    );
+
+
+  /*
+   --------------------------------------------------------
+   Limpieza
+   --------------------------------------------------------
+  */
+
+  setTimeout(
+    function() {
+
+      script.remove();
+
+      /*
+       Si el callback todavía existe,
+       significa que no llegó respuesta.
+      */
+
+      if (
+        window[callback]
+      ) {
+
+        resultado.innerHTML =
+          "⚠ Sin respuesta de la central";
+
+
+        estado.innerHTML =
+          "● SIN RESPUESTA";
+
+
+        delete window[callback];
+
+      }
+
+    },
+    10000
+  );
 
 }
 
