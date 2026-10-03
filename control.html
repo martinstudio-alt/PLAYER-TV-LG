@@ -150,8 +150,7 @@
 
     button:active {
 
-      transform:
-        scale(0.98);
+      transform: scale(0.98);
 
     }
 
@@ -324,12 +323,7 @@ const TV_ID =
 
 
 const COMMAND_URL =
-  "https://script.google.com/macros/s/AKfycbxoKmNXXIYyFf0uQX4gll0G2ROFtGBA9HHlQn21NBAyWbcHG4UpVexK5DeDRjF3hs0nQ/exec";
-
-
-/* ========================================================
-   ELEMENTOS
-   ======================================================== */
+  "https://script.google.com/macros/s/AKfycby1pMrCtWRBlGjY6XCO5SbSqAynFUARkKcEjVwXYsBbbC3jeInHMnEZe9tAQBUHUII1kw/exec";
 
 
 const resultado =
@@ -348,7 +342,6 @@ const estado =
    ENVIAR VIDEO
    ======================================================== */
 
-
 function enviarVideo(video) {
 
 
@@ -360,12 +353,6 @@ function enviarVideo(video) {
     "● ENVIANDO";
 
 
-  /*
-   --------------------------------------------------------
-   Nombre único para el callback
-   --------------------------------------------------------
-  */
-
   const callback =
     "respuesta_" +
     Date.now();
@@ -373,7 +360,7 @@ function enviarVideo(video) {
 
   /*
    --------------------------------------------------------
-   Crear función callback
+   Crear callback
    --------------------------------------------------------
   */
 
@@ -386,12 +373,6 @@ function enviarVideo(video) {
         data
       );
 
-
-      /*
-       ----------------------------------------------------
-       La central confirmó la orden
-       ----------------------------------------------------
-      */
 
       if (
         data &&
@@ -411,7 +392,7 @@ function enviarVideo(video) {
 
 
         resultado.innerHTML =
-          "✕ Error en la central";
+          "✕ ERROR EN LA CENTRAL";
 
 
         estado.innerHTML =
@@ -420,12 +401,6 @@ function enviarVideo(video) {
       }
 
 
-      /*
-       ----------------------------------------------------
-       Eliminar callback
-       ----------------------------------------------------
-      */
-
       delete window[callback];
 
     };
@@ -433,7 +408,7 @@ function enviarVideo(video) {
 
   /*
    --------------------------------------------------------
-   Construir URL
+   Crear URL
    --------------------------------------------------------
   */
 
@@ -456,14 +431,14 @@ function enviarVideo(video) {
 
 
   console.log(
-    "Enviando:",
+    "ORDEN:",
     url
   );
 
 
   /*
    --------------------------------------------------------
-   Crear SCRIPT dinámico
+   Crear SCRIPT
    --------------------------------------------------------
   */
 
@@ -477,18 +452,12 @@ function enviarVideo(video) {
     url;
 
 
-  /*
-   --------------------------------------------------------
-   Error de comunicación
-   --------------------------------------------------------
-  */
-
   script.onerror =
     function() {
 
 
       resultado.innerHTML =
-        "✕ No se pudo contactar la central";
+        "✕ NO SE PUDO CONTACTAR LA CENTRAL";
 
 
       estado.innerHTML =
@@ -503,12 +472,6 @@ function enviarVideo(video) {
     };
 
 
-  /*
-   --------------------------------------------------------
-   Agregar SCRIPT a la página
-   --------------------------------------------------------
-  */
-
   document
     .body
     .appendChild(
@@ -518,26 +481,24 @@ function enviarVideo(video) {
 
   /*
    --------------------------------------------------------
-   Limpieza
+   Timeout
    --------------------------------------------------------
   */
 
   setTimeout(
     function() {
 
+
       script.remove();
 
-      /*
-       Si el callback todavía existe,
-       significa que no llegó respuesta.
-      */
 
       if (
         window[callback]
       ) {
 
+
         resultado.innerHTML =
-          "⚠ Sin respuesta de la central";
+          "⚠ SIN RESPUESTA DE LA CENTRAL";
 
 
         estado.innerHTML =
@@ -547,6 +508,7 @@ function enviarVideo(video) {
         delete window[callback];
 
       }
+
 
     },
     10000
